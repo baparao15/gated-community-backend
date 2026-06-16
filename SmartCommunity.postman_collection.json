@@ -1,0 +1,616 @@
+{
+  "info": {
+    "name": "Smart Community API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base", "value": "http://localhost:5000/api/v1" },
+    { "key": "accessToken", "value": "" },
+    { "key": "refreshToken", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "url": "{{base}}/auth/register",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"John Resident\",\n  \"email\": \"john@example.com\",\n  \"phone\": \"9876543210\",\n  \"password\": \"Password123\"\n}" }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [{ "listen": "test", "script": { "exec": ["const r = pm.response.json();", "if(r.data) {", "  pm.collectionVariables.set('accessToken', r.data.accessToken);", "  pm.collectionVariables.set('refreshToken', r.data.refreshToken);", "}"] } }],
+          "request": {
+            "method": "POST",
+            "url": "{{base}}/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"Password123\"\n}" }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "url": "{{base}}/auth/refresh",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}" }
+          }
+        },
+        {
+          "name": "Get Me",
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/auth/me",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base}}/auth/change-password",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"currentPassword\": \"Password123\",\n  \"newPassword\": \"NewPassword456\"\n}" }
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "url": "{{base}}/auth/forgot-password",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"john@example.com\"\n}" }
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "url": "{{base}}/auth/reset-password",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"token\": \"PASTE_RESET_TOKEN_HERE\",\n  \"password\": \"NewPassword123\"\n}" }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "url": "{{base}}/auth/logout",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users & Units",
+      "item": [
+        {
+          "name": "List Users (Admin)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base}}/users?role=Resident&status=active&page=1&limit=10", "host": ["{{base}}"], "path": ["users"], "query": [{ "key": "role", "value": "Resident" }, { "key": "status", "value": "active" }, { "key": "page", "value": "1" }, { "key": "limit", "value": "10" }] },
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
+          }
+        },
+        {
+          "name": "Approve User (Admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base}}/users/USER_ID_HERE/approve",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
+          }
+        },
+        {
+          "name": "Update User Status (Admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base}}/users/USER_ID_HERE/status",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"suspended\"\n}" }
+          }
+        },
+        {
+          "name": "Get My Resident Profile",
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/residents/profile",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
+          }
+        },
+        {
+          "name": "Update My Profile",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base}}/residents/profile",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"familyMembers\": [{ \"name\": \"Jane Doe\", \"relation\": \"spouse\", \"age\": 30 }],\n  \"emergencyContact\": { \"name\": \"Parent\", \"phone\": \"9000000001\", \"relation\": \"parent\" }\n}" }
+          }
+        },
+        {
+          "name": "Add Tenant",
+          "request": {
+            "method": "POST",
+            "url": "{{base}}/residents/tenants",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Tenant Name\",\n  \"phone\": \"9123456789\",\n  \"email\": \"tenant@example.com\",\n  \"leaseStart\": \"2025-01-01\",\n  \"leaseEnd\": \"2025-12-31\"\n}" }
+          }
+        },
+        {
+          "name": "List Units (Admin)",
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/units",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
+          }
+        },
+        {
+          "name": "Create Unit (Admin)",
+          "request": {
+            "method": "POST",
+            "url": "{{base}}/units",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"blockName\": \"A\",\n  \"unitNumber\": \"101\",\n  \"floor\": 1,\n  \"type\": \"apartment\",\n  \"area\": 1200,\n  \"bedrooms\": 3\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Visitors",
+      "item": [
+        {
+          "name": "Pre-Approve Visitor",
+          "request": {
+            "method": "POST",
+            "url": "{{base}}/visitors/preapprove",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Delivery Guy\",\n  \"phone\": \"9000001111\",\n  \"purpose\": \"Package delivery\",\n  \"validUntil\": \"2027-12-31T23:59:59Z\"\n}" }
+          }
+        },
+        {
+          "name": "My Visitors",
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/visitors/my",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
+          }
+        },
+        {
+          "name": "All Visitors (Guard/Admin)",
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/visitors",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
+          }
+        },
+        {
+          "name": "Verify Visitor (Guard)",
+          "request": {
+            "method": "POST",
+            "url": "{{base}}/visitors/verify",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"otp\": \"123456\"\n}" }
+          }
+        },
+        {
+          "name": "Check In (Guard)",
+          "request": {
+            "method": "POST",
+            "url": "{{base}}/visitors/VISITOR_ID/checkin",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
+          }
+        },
+        {
+          "name": "Check Out (Guard)",
+          "request": {
+            "method": "POST",
+            "url": "{{base}}/visitors/VISITOR_ID/checkout",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
+          }
+        },
+        {
+          "name": "Walk-In (Guard)",
+          "request": {
+            "method": "POST",
+            "url": "{{base}}/visitors/walkin",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Unknown Visitor\",\n  \"phone\": \"9000002222\",\n  \"purpose\": \"Personal visit\",\n  \"unitId\": \"UNIT_ID_HERE\",\n  \"hostId\": \"HOST_USER_ID_HERE\"\n}" }
+          }
+        },
+        {
+          "name": "Approve Walk-In (Resident)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base}}/visitors/VISITOR_ID/approve",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"action\": \"approve\"\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Complaints",
+      "item": [
+        {
+          "name": "Raise Complaint",
+          "request": {
+            "method": "POST",
+            "url": "{{base}}/complaints",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"category\": \"plumbing\",\n  \"description\": \"Water leakage in the bathroom, needs immediate attention.\",\n  \"priority\": \"high\"\n}" }
+          }
+        },
+        {
+          "name": "My Complaints",
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/complaints/my",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
+          }
+        },
+        {
+          "name": "All Complaints (Admin)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base}}/complaints?status=open&priority=high", "host": ["{{base}}"], "path": ["complaints"], "query": [{ "key": "status", "value": "open" }, { "key": "priority", "value": "high" }] },
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
+          }
+        },
+        {
+          "name": "Assign Complaint (Admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base}}/complaints/COMPLAINT_ID/assign",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"staffId\": \"STAFF_USER_ID_HERE\"\n}" }
+          }
+        },
+        {
+          "name": "Update Status (Staff)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base}}/complaints/COMPLAINT_ID/status",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"resolved\",\n  \"note\": \"Fixed the pipe leak\"\n}" }
+          }
+        },
+        {
+          "name": "Submit Feedback (Resident)",
+          "request": {
+            "method": "POST",
+            "url": "{{base}}/complaints/COMPLAINT_ID/feedback",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"rating\": 4,\n  \"feedback\": \"Fixed quickly, good service.\"\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Announcements & Forum",
+      "item": [
+        {
+          "name": "Create Announcement (Admin)",
+          "request": {
+            "method": "POST",
+            "url": "{{base}}/announcements",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Water Supply Interruption\",\n  \"body\": \"Water supply will be interrupted on Sunday from 10am to 2pm for maintenance.\",\n  \"type\": \"notice\",\n  \"audience\": \"all\"\n}" }
+          }
+        },
+        {
+          "name": "List Announcements",
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/announcements",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
+          }
+        },
+        {
+          "name": "Emergency Alert",
+          "request": {
+            "method": "POST",
+            "url": "{{base}}/alerts/emergency",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Fire Alert\",\n  \"message\": \"Small fire reported near Block B parking. Please evacuate immediately.\"\n}" }
+          }
+        },
+        {
+          "name": "List Forum Posts",
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/forum/posts",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
+          }
+        },
+        {
+          "name": "Create Forum Post",
+          "request": {
+            "method": "POST",
+            "url": "{{base}}/forum/posts",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Anyone interested in carpooling to downtown?\",\n  \"body\": \"I drive to downtown every weekday at 8am, looking for co-riders.\",\n  \"category\": \"general\"\n}" }
+          }
+        },
+        {
+          "name": "Comment on Post",
+          "request": {
+            "method": "POST",
+            "url": "{{base}}/forum/posts/POST_ID/comment",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"body\": \"I'm interested! Please count me in.\"\n}" }
+          }
+        },
+        {
+          "name": "Like Post",
+          "request": {
+            "method": "POST",
+            "url": "{{base}}/forum/posts/POST_ID/like",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Billing & Payments",
+      "item": [
+        {
+          "name": "Generate Invoices (Admin)",
+          "request": {
+            "method": "POST",
+            "url": "{{base}}/invoices/generate",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"month\": 6,\n  \"year\": 2026,\n  \"lineItems\": [\n    { \"description\": \"Maintenance Charge\", \"amount\": 3000 },\n    { \"description\": \"Water Charge\", \"amount\": 500 }\n  ],\n  \"dueDate\": \"2026-07-05\",\n  \"tax\": 18\n}" }
+          }
+        },
+        {
+          "name": "My Invoices",
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/invoices/my",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
+          }
+        },
+        {
+          "name": "All Invoices (Admin)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base}}/invoices?status=overdue&month=6&year=2026", "host": ["{{base}}"], "path": ["invoices"], "query": [{ "key": "status", "value": "overdue" }, { "key": "month", "value": "6" }, { "key": "year", "value": "2026" }] },
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
+          }
+        },
+        {
+          "name": "Pay Invoice",
+          "request": {
+            "method": "POST",
+            "url": "{{base}}/invoices/INVOICE_ID/pay",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"method\": \"upi\",\n  \"reference\": \"UPI20260601TXN123\"\n}" }
+          }
+        },
+        {
+          "name": "Get Receipt",
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/invoices/INVOICE_ID/receipt",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
+          }
+        },
+        {
+          "name": "My Payments",
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/payments/my",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
+          }
+        },
+        {
+          "name": "All Payments (Admin)",
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/payments",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Facilities & Bookings",
+      "item": [
+        {
+          "name": "List Facilities",
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/facilities",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
+          }
+        },
+        {
+          "name": "Create Facility (Admin)",
+          "request": {
+            "method": "POST",
+            "url": "{{base}}/facilities",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Rooftop Pool\",\n  \"type\": \"pool\",\n  \"capacity\": 20,\n  \"description\": \"Olympic size rooftop swimming pool\",\n  \"openHours\": { \"start\": \"06:00\", \"end\": \"22:00\" },\n  \"bookingRules\": {\n    \"maxSlotHours\": 2,\n    \"advanceBookingDays\": 7,\n    \"requiresApproval\": true\n  }\n}" }
+          }
+        },
+        {
+          "name": "Check Availability",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base}}/facilities/FACILITY_ID/availability?date=2026-07-01", "host": ["{{base}}"], "path": ["facilities", "FACILITY_ID", "availability"], "query": [{ "key": "date", "value": "2026-07-01" }] },
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
+          }
+        },
+        {
+          "name": "Request Booking",
+          "request": {
+            "method": "POST",
+            "url": "{{base}}/bookings",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"facilityId\": \"FACILITY_ID_HERE\",\n  \"slotStart\": \"2026-07-01T10:00:00Z\",\n  \"slotEnd\": \"2026-07-01T12:00:00Z\",\n  \"attendees\": 4,\n  \"purpose\": \"Birthday party\"\n}" }
+          }
+        },
+        {
+          "name": "My Bookings",
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/bookings/my",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
+          }
+        },
+        {
+          "name": "Approve Booking (Admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base}}/bookings/BOOKING_ID/approve",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"action\": \"approve\"\n}" }
+          }
+        },
+        {
+          "name": "Cancel Booking",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base}}/bookings/BOOKING_ID/cancel",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Security & Vehicles",
+      "item": [
+        {
+          "name": "Register Vehicle",
+          "request": {
+            "method": "POST",
+            "url": "{{base}}/vehicles",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"vehicleNumber\": \"KA01AB1234\",\n  \"type\": \"car\",\n  \"make\": \"Toyota\",\n  \"model\": \"Innova\",\n  \"color\": \"White\",\n  \"parkingSlot\": \"B-14\"\n}" }
+          }
+        },
+        {
+          "name": "My Vehicles",
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/vehicles/my",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
+          }
+        },
+        {
+          "name": "Search Vehicles (Guard)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base}}/vehicles?vehicleNumber=KA01", "host": ["{{base}}"], "path": ["vehicles"], "query": [{ "key": "vehicleNumber", "value": "KA01" }] },
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
+          }
+        },
+        {
+          "name": "Security Dashboard",
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/security/dashboard",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
+          }
+        },
+        {
+          "name": "Emergency Contacts",
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/emergency-contacts",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin Dashboard",
+      "item": [
+        {
+          "name": "Overview",
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/dashboard/overview",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
+          }
+        },
+        {
+          "name": "Financial Dashboard",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base}}/dashboard/financial?year=2026", "host": ["{{base}}"], "path": ["dashboard", "financial"], "query": [{ "key": "year", "value": "2026" }] },
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
+          }
+        },
+        {
+          "name": "Maintenance Dashboard",
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/dashboard/maintenance",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
+          }
+        },
+        {
+          "name": "Visitor Analytics",
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/dashboard/visitors",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
+          }
+        },
+        {
+          "name": "Booking Analytics",
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/dashboard/bookings",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "My Notifications",
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/notifications",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
+          }
+        },
+        {
+          "name": "Mark Read",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base}}/notifications/NOTIF_ID/read",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
+          }
+        },
+        {
+          "name": "Mark All Read",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base}}/notifications/read-all",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:5000/health"
+          }
+        }
+      ]
+    }
+  ]
+}
