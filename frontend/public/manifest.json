@@ -1,0 +1,16 @@
+{
+  "name": "Smart Community Management System",
+  "short_name": "Smart Community",
+  "description": "Role-based community management app for residents, admins, security, and maintenance staff.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F8FAFC",
+  "theme_color": "#2563EB",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
